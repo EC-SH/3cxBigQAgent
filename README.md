@@ -66,9 +66,26 @@ Output will be in the `dist/` folder.
 
 ## Credentials & Security
 
-Credentials (service account JSON contents, Gemini API key) are stored in Electron's OS app-data directory with basic encryption — not in this project folder. On Windows that is `%APPDATA%\3cx-bigquery-agent`, on Mac `~/Library/Application Support/3cx-bigquery-agent`.
+## where creds live
 
-They are never written to disk in plaintext and never leave your machine (they are only used to make API calls directly from the app).
+stored in electron's OS app-data dir with basic obfuscation... not plaintext but not cryptographically secure either
+
+- windows: `%APPDATA%\3cx-bigquery-agent`
+- mac: `~/Library/Application Support/3cx-bigquery-agent`
+
+fine for personal use on a trusted machine, not suitable for shared or multi-user environments
+
+---
+
+## known limitations (mvp)
+
+- cred encryption is obfuscation only... hardcoded key in source
+- no input sanitization before queries hit gemini
+- oauth client secret persisted in store
+- whole service account json stored locally
+
+tracked, not forgotten. if this becomes a shared tool these get addressed first.
+
 
 ---
 
