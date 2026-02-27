@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- CSP: no remote scripts, no inline eval — keeps the renderer sandboxed -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'self'" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3CX Query Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       APP SHELL — Two panels side by side
+       Left: sidebar (settings + connection)
+       Right: main chat/results area
+  ════════════════════════════════════════════════════════════════ -->
+  <div id="app">
+
+    <!-- ── LEFT SIDEBAR ────────────────────────────────────────── -->
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-mark">3CX</div>
+        <div class="logo-text">
+          <span class="logo-top">Query</span>
+          <span class="logo-sub">Agent</span>
+        </div>
+      </div>
+
+      <!-- NAV TABS -->
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" data-panel="chat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          Chat
+        </button>
+        <button class="nav-btn" data-panel="settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+          Settings
+        </button>
+      </nav>
+
+      <!-- CONNECTION STATUS ─────────────────────────────────────── -->
+      <div class="sidebar-connection">
+        <div class="connection-label">Connection</div>
+        <div id="conn-status" class="conn-badge unconfigured">Not configured</div>
+        <div id="conn-tables" class="conn-tables"></div>
+        <button id="btn-test" class="btn-secondary btn-sm">Test Connection</button>
+      </div>
+
+      <div class="sidebar-footer">
+        <a href="#" class="footer-link" data-url="https://www.3cx.com/docs/google-bigquery-configuration/">3CX BigQuery Docs</a>
+        <a href="#" class="footer-link" data-url="https://github.com/3cx/GoogleBigQueryAgent">GitHub Repo</a>
+      </div>
+    </aside>
+
+    <!-- ── MAIN CONTENT AREA ───────────────────────────────────── -->
+    <main id="content">
+
+      <!-- ═══════════════════ CHAT PANEL ═══════════════════════ -->
+      <section id="panel-chat" class="panel active">
+        <div class="panel-header">
+          <h1>Ask your call data anything</h1>
+          <p class="panel-subtitle">Natural language → BigQuery SQL → Results</p>
+        </div>
+
+        <!-- Example queries to get started -->
+        <div id="examples-row" class="examples-row">
+          <span class="examples-label">Try:</span>
+          <button class="example-chip" data-q="How many inbound calls did we receive today?">Inbound calls today</button>
+          <button class="example-chip" data-q="Which extension handled the most calls this week?">Top extension this week</button>
+          <button class="example-chip" data-q="What was the average call duration last month?">Avg duration last month</button>
+          <button class="example-chip" data-q="Show me all missed calls from yesterday">Missed calls yesterday</button>
+        </div>
+
+        <!-- Chat history feed -->
+        <div id="chat-feed" class="chat-feed">
+          <!-- Messages are appended here by JS -->
+          <div class="feed-empty">
+            <div class="feed-empty-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            </div>
+            <p>Connect your credentials in Settings, then ask a question below.</p>
+          </div>
+        </div>
+
+        <!-- Input bar -->
+        <div class="input-bar">
+          <textarea
+            id="query-input"
+            placeholder="Ask about your call data…"
+            rows="1"
+            spellcheck="true"
+          ></textarea>
+          <button id="btn-send" class="btn-primary" disabled>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- ═══════════════════ SETTINGS PANEL ══════════════════ -->
+      <section id="panel-settings" class="panel">
+        <div class="panel-header">
+          <h1>Configuration</h1>
+          <p class="panel-subtitle">Connect 3CX Query Agent to your Google Cloud project</p>
+        </div>
+
+        <div class="settings-body">
+
+          <!-- ── SECTION: Google Cloud ────────────────────────── -->
+          <div class="settings-section">
+            <h2 class="settings-section-title">Google Cloud Project</h2>
+            <p class="settings-hint">The project ID and dataset name from your BigQuery setup. Find the Project ID in the Google Cloud Console — it looks like <code>my-project-123456</code>.</p>
+
+            <div class="field-group">
+              <label for="input-project">Project ID</label>
+              <input id="input-project" type="text" placeholder="your-project-id" autocomplete="off" spellcheck="false" />
+            </div>
+            <div class="field-group">
+              <label for="input-dataset">Dataset Name</label>
+              <input id="input-dataset" type="text" placeholder="3cx_data" autocomplete="off" spellcheck="false" />
+            </div>
+          </div>
+
+          <!-- ── SECTION: Auth Method ─────────────────────────── -->
+          <div class="settings-section">
+            <h2 class="settings-section-title">BigQuery Authentication</h2>
+            <p class="settings-hint">Choose how this app authenticates to BigQuery. Service Account JSON is the simplest option for most setups.</p>
+
+            <div class="auth-method-tabs">
+              <button class="auth-tab active" data-auth="serviceAccount">Service Account JSON</button>
+              <button class="auth-tab" data-auth="browser">Browser / OAuth</button>
+            </div>
+
+            <!-- Service Account pane -->
+            <div id="auth-pane-serviceAccount" class="auth-pane active">
+              <p class="settings-hint">Upload the JSON key file you downloaded from <em>IAM &amp; Admin → Service Accounts → Keys</em> in the Google Cloud Console.</p>
+              <div class="file-upload-row">
+                <div id="json-status" class="file-status empty">No file uploaded</div>
+                <button id="btn-pick-json" class="btn-secondary">Upload JSON Key…</button>
+              </div>
+            </div>
+
+            <!-- Browser OAuth pane -->
+            <div id="auth-pane-browser" class="auth-pane">
+              <p class="settings-hint">Sign in with your Google account via the browser. Requires OAuth2 credentials from Google Cloud Console (under <em>APIs &amp; Services → Credentials → OAuth 2.0 Client IDs</em>).</p>
+              <div class="field-group">
+                <label for="input-oauth-id">OAuth Client ID</label>
+                <input id="input-oauth-id" type="text" placeholder="xxxxxxx.apps.googleusercontent.com" autocomplete="off" spellcheck="false"/>
+              </div>
+              <div class="field-group">
+                <label for="input-oauth-secret">OAuth Client Secret</label>
+                <input id="input-oauth-secret" type="password" placeholder="GOCSPX-…" autocomplete="off"/>
+              </div>
+              <button id="btn-browser-login" class="btn-secondary">Open Sign-in Page in Browser…</button>
+              <div id="oauth-code-row" class="oauth-code-row hidden">
+                <p>Paste the authorization code shown in your browser:</p>
+                <div class="oauth-code-input-row">
+                  <input id="input-oauth-code" type="text" placeholder="4/0AY0e-g7…" autocomplete="off" spellcheck="false"/>
+                  <button id="btn-submit-code" class="btn-primary btn-sm">Submit</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── SECTION: Gemini ─────────────────────────────── -->
+          <div class="settings-section">
+            <h2 class="settings-section-title">Gemini API Key</h2>
+            <p class="settings-hint">Used for natural-language to SQL translation. Get your key from <a href="#" data-url="https://aistudio.google.com/app/apikey">Google AI Studio</a>. The key starts with <code>AIza</code>.</p>
+            <div class="field-group">
+              <label for="input-gemini">API Key</label>
+              <input id="input-gemini" type="password" placeholder="AIzaSy…" autocomplete="off"/>
+            </div>
+          </div>
+
+          <!-- ── SAVE BUTTON ─────────────────────────────────── -->
+          <div class="settings-actions">
+            <button id="btn-save" class="btn-primary">Save Configuration</button>
+            <span id="save-feedback" class="save-feedback"></span>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Toast notification container -->
+  <div id="toast-container"></div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

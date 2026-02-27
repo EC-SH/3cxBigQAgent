@@ -1,0 +1,31 @@
+{
+  "name": "3cx-bigquery-agent",
+  "version": "1.0.0",
+  "description": "3CX BigQuery Gemini AI Agent — Desktop App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.engage.3cx-bigquery-agent",
+    "productName": "3CX Query Agent",
+    "directories": { "output": "dist" },
+    "win": { "target": "nsis", "icon": "assets/icon.ico" },
+    "mac": { "target": "dmg", "icon": "assets/icon.icns" },
+    "linux": { "target": "AppImage", "icon": "assets/icon.png" }
+  },
+  "dependencies": {
+    "@google-cloud/bigquery": "^7.3.0",
+    "@google/generative-ai": "^0.15.0",
+    "googleapis": "^140.0.0",
+    "electron-store": "^8.1.0"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  }
+}
