@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="BigQuery Agent — AI-powered data analyst for your BigQuery datasets">
+  <title>BigQuery Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header" id="app-header">
+      <div class="header-left">
+        <div class="header-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="20" cy="18" r="2" fill="#818cf8"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="header-title">BigQuery Agent</h1>
+          <p class="header-subtitle">AI-powered data analyst</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="status-indicator" id="status-indicator">
+          <span class="status-dot"></span>
+          <span class="status-text" id="status-text">Ready</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Chat Area -->
+    <main class="chat-area" id="chat-area">
+      <div class="messages" id="messages">
+        <!-- Welcome message -->
+        <div class="message bot-message welcome" id="welcome-message">
+          <div class="message-avatar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="message-content">
+            <div class="message-bubble">
+              <p><strong>Welcome to BigQuery Agent.</strong></p>
+              <p>I can query and analyze your BigQuery data. Try asking:</p>
+              <ul>
+                <li>"What tables are available?"</li>
+                <li>"Show me call volume by day for the last week"</li>
+                <li>"What are the top 10 longest calls?"</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Input Area -->
+    <footer class="input-area" id="input-area">
+      <div class="input-container">
+        <textarea
+          id="message-input"
+          placeholder="Ask about your data..."
+          rows="1"
+          autofocus
+        ></textarea>
+        <button id="send-button" class="send-button" aria-label="Send message">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
